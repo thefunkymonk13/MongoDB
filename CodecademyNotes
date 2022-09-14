@@ -291,3 +291,150 @@ This would output the following documents from our collection:
 Note: Query fields and their associated values are case and space sensitive. 
 So, a query for a value "Corolla" would not be valid for a lowercase version like "corolla". 
 This also applies if we accidentally included spaces. So, " corolla" would also not be valid if the value was "corolla". 
+
+Under the hood, .find() is actually using an operator to find matches to our query. Operators are special syntax that specifies some logical action
+we want to perform when our method executes.
+
+.find() uses the implicit equality operator, $eq
+$eq matches documents that include the specified field and value
+
+If we wanted to explicitly include it, we could with the following field-value pair:
+
+{
+  <field>: { $eq: <value> }
+}
+
+This is the equivalent of using the format seen in the first example:
+
+{ 
+  <field>: <value> 
+}
+Fortunately, MongoDB handles implicit equality for us, so we can simply use the shorthand syntax for basic queries. 
+In the upcoming exercises, we’ll learn about other operators that we can use to specify ranges and other criteria for matching documents in our queries.
+
+db.listingsAndReviews.find({ borough: "Brooklyn", cuisine: "Caribbean" })
+db.listingsAndReviews.find({ borough: "Brooklyn" })
+
+QUERYING EMBEDDED DOCUMENTS
+MongoDB lets us embed documents directly within a parent document. These nested documents are known as sub-documents and help us establish relationships
+between our data
+
+{
+  maker: "Honda",
+  country: "Japan",
+  models: [
+    { name: "Accord" },
+    { name: "Civic" },
+    { name: "Pilot" },
+    …
+  ]
+},
+
+models would be considered embedded
+We can use the .find() method to query these by using dot notation(.) to access the embedded field.
+
+Looking at the syntax:
+db.<collection>.find(
+  {
+    "<parent_field>.<embedded_field>": <value>
+   }
+)
+
+Note two important parts of the syntax:
+
+To query embedded documents, we must use a parent field (the name of the field wrapping the embedded document), followed by the dot (.) notation, and the embedded field we are looking for.
+To query embedded documents, we must wrap the parent and embedded fields in quotation marks.
+
+If we wanted to find the document with "Pilot" listed as a model, we would write the following command:
+
+db.auto_makers.find({ "models.name" : "Pilot" })
+This query would return the following document from our collection:
+
+{
+  maker: "Honda",
+  country: "Japan",
+  models: [
+    { name: "Accord" },
+    { name: "Civic" },
+    { name: "Pilot" },
+    …
+  ]
+}
+
+restaurants> db.listingsAndReviews.find({ "address.zipcode" : "11231" })
+
+When querying numbers you need to put them in double quotes too
+
+COMPARISON OPERATORS: $gt and $lt
+
+The greater than operator, $gt, is used in queries to match documents where the value for a particular field is greater than a specified value. Let’s have a look at the syntax for the $gt operator:
+
+db.<collection>.find( { <field>: { $gt: <value> } } )
+To see the $gt operator in action, consider the following collection of US National Parks:
+
+{
+ name: "Yosemite National Park",
+ state: "California",
+ founded: 1890
+},
+{
+ name: Crater Lake National Park,
+ state: "Oregon",
+ founded: 1902
+},
+{
+ name: "Mesa Verde National Park",
+ state: "Colorado",
+ founded: 1906
+},
+{
+ name: "Olympic National Park",
+ state: "Washington",
+ founded: 1909
+},
+…
+To find all parks that were founded after the year 1900, we could execute the following query:
+
+db.national_parks.find({ founded: { $gt: 1900 }});
+This would return documents where founded is 1901 or greater:
+
+{
+ name: Crater Lake National Park,
+ state: "Oregon",
+ founded: 1902
+},
+{
+ name: "Mesa Verde National Park",
+ state: "Colorado",
+ founded: 1906
+},
+{
+ name: "Olympic National Park",
+ state: "Washington",
+ founded: 1909
+}
+Note: If we wanted to include the year 1900 in our query, we could use the $gte, 
+which will match all values that are greater than or equal to the specified value.
+
+We can also match documents that are less than a given value, by using the less than operator, $lt. 
+For example, if we reference our national_parks example above, we could select all parks that were founded before 1900 with the following query:
+
+db.national_parks.find({ founded: { $lt: 1900 }});
+This would return all documents where founded is 1899 or lower.
+
+{
+ name: "Yosemite National Park",
+ state: "California",
+ founded: 1890
+}
+Note: Similar to the $gte operator, we can use $lte if we want to match all values that are less than or equal to the specified value. 
+
+While the examples we examined in this exercise match numerical values, it’s worth noting that these comparison operators can be 
+used with any data type (e.g., letters).
+
+SORTING DOCUMENTS
+
+
+
+
+
