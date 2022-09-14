@@ -1,0 +1,62 @@
+Data modeling as a practice is the process of developing and choosing a way to structure our data and its relationships. A data model is like a blueprint for our data.
+
+Embedded documents
+One way to establish a relationship in MongoDB is to use embedded documents. This method allows us to nest data related to a document directly inside of 
+it! These nested documents are called sub-documents. We already saw an example of this style when we looked at Model B of the photography database 
+(feel free to pause and take a look again). Here is our car and engine example, modeled with an embedded document:
+
+// Car Document
+{
+  car_id: 48273
+  model_name: "Corvette",
+  engine: {
+    engine_power: 490,
+    engine_type: "V8",
+    acceleration: "High"
+  }
+}
+
+In the above example, notice how the engine data is nested inside the car document. This type of data model where we find related data lumped 
+together into a single collection is known as a denormalized data model.
+
+Additionally, the following scenarios are good use-cases for embedded documents:
+
+Modeling relationships where one entity contains another, also known as a one-to-one relationship. For example, we can think of a database 
+storing data with a relationship between a car and its unique license plate. 
+Each record of a car has only one license plate. Modeling relationships that map one entity to many sub-entities, also known as an 
+one-to-many relationship. For example, we can think of a database storing data with a relationship between a car owner and their multiple-owned cars. 
+Each record of a car owner can own multiple instances of a car.
+
+References
+Links between data. Using references, we can split our data into multiple documents and maintain their relationships.
+
+//Car Document
+{
+  car_id: 48273
+  model_name: "Corvette",
+  engine_id: 2165
+}
+ 
+// Engine Document
+{
+  id: 2165
+  engine_power: 490,
+  engine_type: "V8",
+  acceleration: "High"
+}
+
+This type of data model where we find related data via a link is known as a normalized data model and typically mimics how a 
+relational database creates relationships between data.
+
+Additionally, the following scenario is a good use case for references:
+
+Modeling relationships where many instances of one entity can be mapped to many instances of another entity, also 
+known as many-to-many relationships. For example, we can think of the relationship between car rentals and individuals 
+renting the cars. A car can be rented by multiple individuals, and an individual can rent multiple cars.
+
+Choosing The Right Model
+Choosing between references and embedded documents can be tricky. Let’s consider three cases where we have to choose between an 
+embedded or a reference-based model. For each case, try to first consider whether we would use references or embedded documents to 
+model the relationships between the data.
+
+
