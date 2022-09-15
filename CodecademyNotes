@@ -433,8 +433,144 @@ While the examples we examined in this exercise match numerical values, it’s w
 used with any data type (e.g., letters).
 
 SORTING DOCUMENTS
+MongoDB allows us to sort our query before returning the results to us. 
 
+To sort documents we must append the .sort() method to our query. It takes one argument, a document specifying the fields we want to sort by, where their
+respective value is the sort order.
 
+SYNTAX
+db.<collection>.find().sort(
+  {
+    <field>: <value>,
+    <second_field>: <value>,
+    ...
+  }
+)
 
+There are two values that we can provide for the fields, 1 or -1 (negative one). Specifying a 1 sorts the field in ascending order and -1 sorts it
+in descending order. For datetime and string values, a value of 1 would sort the fields, and their corresponding documents in chronological and
+alphabetical order while -1 would sort those fields in reverse order.
 
+Example:
+db.records.find().sort({ "release_year": 1 });
 
+Results:
+{
+  _id: ObjectId(...),
+  artist: "The Beatles",
+  album: "Abbey Road",
+  release_year: 1969
+},
+{
+  _id: ObjectId(...),
+  artist: "Talking Heads",
+  album: "Stop Making Sense",
+  release_year: 1984
+},
+{
+  _id: ObjectId(...),
+  artist: "Prince",
+  album: "Purple Rain",
+  release_year: 1984
+},
+{
+  _id: ObjectId(...),
+  artist: "Tracy Chapman",
+  album: "Tracy Chapman",
+  release_year: 1988
+}
+…
+
+when we sort on fields that have duplicate values, documents that have those values may be returned in any order. 
+Notice in our example above, that we have two documents with the release_year 1984. If we were to run this exact query multiple times, 
+documents would get returned in numerical order by release_year, but the two documents that have 1984 as their release_year value, might be 
+returned in a different order each time.
+
+We can also specify additional fields to sort on to receive more consistent results. For example, 
+we can execute the following query to sort first by release_year and then by artist.
+
+db.records.find().sort({ "release_year": 1,  "artist": 1 });
+
+This would return a list of matching documents that were sorted first by the release_year field in ascending order. Then, within each release_year value, 
+documents would be sorted by the artist field in ascending order. Our query result would look like this:
+
+{
+  _id: ObjectId(...),
+  artist: "The Beatles",
+  album: "Abbey Road",
+  release_year: 1969
+},
+{
+  _id: ObjectId(...),
+  artist: "Prince",
+  album: "Purple Rain",
+  release_year: 1984
+},
+{
+  _id: ObjectId(...),
+  artist: "Talking Heads",
+  album: "Stop Making Sense",
+  release_year: 1984
+},
+{
+  _id: ObjectId(...),
+  artist: "Tracy Chapman",
+  album: "Tracy Chapman",
+  release_year: 1988
+}
+…
+
+QUERY PROJECTIONS
+MongoDB returns whole documents to us by default but allows us to use projections in our queries to specify the exact fields we want to return
+from our matching documents.
+
+To include a projection, we can pass a second argument to the .find() method, a projection document that specifies the fields we want to include, or
+exclude, in our returned documents. Fields can have a value of 1 to include that field or 0 to exclude it.
+
+SYNTAX
+db.<collection>.find(
+  <query>,
+  {
+    <projection_field_1>: <0 or 1>,
+    <projection_field_2>: <0 or 1>,
+    ...
+  }
+)
+
+just interested in viewing the address and name fields, we could run the following query that includes a projection:
+
+db.listingsAndReviews.find( {}, {address: 1, name: 1} )
+This would return the address and name fields for any documents that match our query. Our output for each document would look as follows:
+
+{
+  _id: ObjectId("5eb3d668b31de5d588f4292a"),
+  address: {
+    building: '2780',
+    coord: [ -73.98241999999999, 40.579505 ],
+    street: 'Stillwell Avenue',
+    zipcode: '11224'
+  },
+  name: 'Riviera Caterer'
+}
+
+by default, the _id field is included in our projection, even if we do not specify to include it.
+
+But what if we’re not interested in seeing the _id field? We can omit it from our results by specifying the _id field in our projection document. 
+Instead of setting its value to 1, we’d set it to a value of 0 to exclude it from our return documents.
+
+db.listingsAndReviews.find( {}, {address: 1, name: 1, _id: 0} )
+
+Rather than listing the fields we want to return, we can use a projection to define which fields we want to exclude from our 
+matching documents by assigning the fields a value of 0. For example, if we wanted to query our collection and see all fields 
+but the grades field, we could run the following command:
+
+db.restaurants.find( {}, {grades: 0} )
+
+In addition to the methods and operators we’ve covered in this lesson, MongoDB provides us with even more syntax that can be useful to us when performing queries:
+
+The .count() method returns the number of documents that match a query.
+The .limit() method can be chained to the .find() method, and specifies the maximum number of documents a query will output.
+The $exists operator can be included in a query filter to only match documents that contain the given field.
+The $ne operator helps check if a field is not equal to a specified value.
+The $and and $or operators help perform AND or OR logic operators.
+Lastly, if you are looking for a way to make query outputs look a bit more “pretty”, you can use the .pretty() method!
