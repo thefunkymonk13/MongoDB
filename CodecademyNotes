@@ -197,6 +197,9 @@ of it.
 command: db
 Will output the name of the database we are currently in
 
+command: show collections
+Will show you all of the collections that exist
+
 QUERYING
 Persistence refers to a database's ability to store data that is stable and enduring. Four essential functions that a persistent database must be able to
 perform:
